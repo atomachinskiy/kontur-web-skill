@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Kontur UI — пример продуктового интерфейса</title>
+<link rel="stylesheet" href="../foundation/colors.css">
+<link rel="stylesheet" href="../foundation/typography.css">
+<style>
+  *{box-sizing:border-box}
+  .ic{display:inline-flex; align-items:center; justify-content:center}
+  .ic svg{width:100%; height:100%; display:block; fill:currentColor}
+  :root{
+    /* product accents not in default k-palette (Kontur.Market brand blue) */
+    --k-blue:#1e5ac8; --k-blue-deep:#1b4c8b;
+    --pay-cash:#00a948; --pay-card:#1e5ac8; --pay-bonus:#fe4c4c; --pay-deliv:#ffbe3d; --pay-adv:#b8b8b8;
+  }
+  body{
+    margin:0; font-family:var(--k-font-family);
+    background:var(--k-color-surface-low,#f2f2f2);
+    color:var(--k-color-text-neutral-heavy,rgba(0,0,0,.88));
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{display:grid; grid-template-columns:248px 1fr 372px; gap:20px; max-width:1440px; margin:0 auto; padding:20px 28px; align-items:start;}
+
+  /* sidebar */
+  .side{display:flex; flex-direction:column; gap:2px; position:sticky; top:20px;}
+  .brand{display:flex; align-items:center; gap:6px; padding:6px 12px 18px; height:34px;}
+  .brand .kontur{font-size:19px; font-weight:700; color:#222; letter-spacing:-.01em}
+  .brand .logo{height:20px; display:flex; align-items:center}
+  .brand .logo svg{height:20px; width:auto; display:block}
+  .nav a{display:flex; align-items:center; gap:12px; padding:9px 12px; border-radius:8px; text-decoration:none;
+    color:var(--k-color-text-neutral-heavy,rgba(0,0,0,.88)); font-size:15px; line-height:20px; position:relative;}
+  .nav a .ic{width:20px; height:20px; flex:0 0 20px; color:var(--k-color-text-neutral-soft,rgba(0,0,0,.56))}
+  .nav a:hover{background:rgba(0,0,0,.04)}
+  .nav a.active{background:var(--k-color-surface-base,#fff); font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .nav a.active .ic{color:var(--k-color-text-neutral-heavy,rgba(0,0,0,.88))}
+  .nav .badge{margin-left:auto; background:var(--k-blue); color:#fff; font-size:12px; font-weight:500; line-height:1;
+    padding:3px 7px; border-radius:20px;}
+  .nav .dot{margin-left:auto; width:8px; height:8px; border-radius:50%; background:var(--k-blue)}
+  .nav .sep{height:1px; background:var(--k-color-line-neutral-faint,rgba(0,0,0,.08)); margin:12px 12px}
+  .user{display:flex; align-items:center; gap:10px; padding:10px 12px; margin-top:4px; font-size:15px}
+  .user .av{width:26px; height:26px; border-radius:50%; background:#3a3a3a; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600}
+
+  /* main */
+  .panel{background:var(--k-color-surface-base,#fff); border-radius:16px; padding:24px 28px; box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .main-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:22px}
+  .main-head h1{margin:0; font-size:28px; line-height:36px; font-weight:700}
+  .report-link{display:flex; align-items:center; gap:8px; color:var(--k-color-text-neutral-soft,rgba(0,0,0,.56)); font-size:15px}
+  .report-link .ic{width:18px;height:18px}
+  .metrics{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:26px}
+  .metric{background:var(--k-color-surface-low,#f2f2f2); border-radius:12px; padding:16px 18px}
+  .metric .row{display:flex; align-items:center; gap:8px}
+  .metric .val{font-size:30px; line-height:1.1; font-weight:700; letter-spacing:-.01em}
+  .metric .delta{display:flex; align-items:center; gap:2px; font-size:14px; font-weight:500}
+  .metric .delta .ic{width:14px;height:14px}
+  .up{color:var(--k-color-text-success-heavy,#007f34)}
+  .down{color:var(--k-color-text-error-heavy,#c50220)}
+  .metric .cap{margin-top:6px; color:var(--k-color-text-neutral-soft,rgba(0,0,0,.56)); font-size:15px}
+
+  .pay{display:grid; grid-template-columns:1fr auto auto; column-gap:28px; max-width:600px}
+  .pay .line{display:contents}
+  .pay .name{display:flex; align-items:center; gap:10px; padding:8px 0 5px; font-size:15px}
+  .pay .name .swatch{width:16px; height:16px; border-radius:4px}
+  .pay .pct{color:var(--k-color-text-neutral-pale,rgba(0,0,0,.4)); font-variant-numeric:tabular-nums; align-self:center; text-align:right}
+  .pay .sum{align-self:center; text-align:right; font-variant-numeric:tabular-nums; font-size:15px}
+  .pay .bar{grid-column:1 / -1; height:3px; border-radius:2px; margin-bottom:11px}
+
+  /* right rail */
+  .rail{display:flex; flex-direction:column; gap:20px}
+  .promo{background:var(--k-blue-deep); color:#fff; border-radius:16px; padding:22px 24px; position:relative}
+  .promo h3{margin:0 0 10px; font-size:22px; line-height:28px; font-weight:700}
+  .promo p{margin:0; font-size:15px; line-height:20px; color:rgba(255,255,255,.82)}
+  .promo .x{position:absolute; top:16px; right:16px; opacity:.7; font-size:18px; line-height:1}
+  .tasks h2{margin:0 0 6px; font-size:26px; line-height:32px; font-weight:700; display:flex; align-items:center; gap:8px}
+  .tasks h2 .ic{width:20px;height:20px;color:var(--k-color-text-neutral-pale,rgba(0,0,0,.4))}
+  .task{display:flex; gap:12px; padding:13px 0; border-top:1px solid var(--k-color-line-neutral-faint,rgba(0,0,0,.08)); font-size:15px; line-height:21px; align-items:flex-start}
+  .task:first-of-type{border-top:none}
+  .task .mark{width:9px; height:9px; border-radius:50%; margin-top:6px; flex:0 0 9px; background:var(--k-color-text-neutral-pale,rgba(0,0,0,.28))}
+  .task.hot .mark{background:var(--k-color-shape-bold-brand-original,#fe4c4c)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="side">
+    <div class="brand"><span class="kontur">Контур</span><span class="logo" data-logo="Market"></span></div>
+    <nav class="nav">
+      <a class="active"><i class="ic" data-icon="BuildingHome"></i>Главная</a>
+      <a><i class="ic" data-icon="Doc"></i>Документы</a>
+      <a><i class="ic" data-icon="BookNotepad"></i>Блюда</a>
+      <a><i class="ic" data-icon="MarketShoppingBag"></i>Товары<span class="badge">87</span></a>
+      <a><i class="ic" data-icon="MarketShoppingCart"></i>Услуги и товары</a>
+      <a><i class="ic" data-icon="BookOpenText"></i>Журнал продаж</a>
+      <a><i class="ic" data-icon="MoneyTypeCard"></i>Кассы<span class="dot"></span></a>
+      <a><i class="ic" data-icon="DocsText"></i>Отчёты</a>
+      <a><i class="ic" data-icon="DeliveryBoxIsoClosed"></i>Поставщики</a>
+      <a><i class="ic" data-icon="People2"></i>Сотрудники и клиенты</a>
+      <a><i class="ic" data-icon="BookClosedHelp"></i>Справка</a>
+      <div class="sep"></div>
+      <a><i class="ic" data-icon="MarketShoppingBag"></i>Push in bar</a>
+      <a><i class="ic" data-icon="SettingsGear"></i>Настройки и оплата<span class="dot"></span></a>
+      <a><i class="ic" data-icon="Star"></i>Оставить отзыв</a>
+    </nav>
+    <div class="user"><span class="av">ПМ</span>Пит Мондриан</div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="panel">
+    <div class="main-head">
+      <h1>Сегодня, 25 августа</h1>
+      <span class="report-link"><i class="ic" data-icon="DocsText"></i>Подробный отчёт</span>
+    </div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="row"><span class="val">99 651 ₽</span><span class="delta up"><i class="ic" data-icon="ArrowAUp" data-size="16"></i>9%</span></div>
+        <div class="cap">Выручка</div>
+      </div>
+      <div class="metric">
+        <div class="row"><span class="val">121</span><span class="delta up"><i class="ic" data-icon="ArrowAUp" data-size="16"></i>8%</span></div>
+        <div class="cap">Чеки</div>
+      </div>
+      <div class="metric">
+        <div class="row"><span class="val">971 ₽</span><span class="delta down"><i class="ic" data-icon="ArrowADown" data-size="16"></i>1%</span></div>
+        <div class="cap">Средний чек</div>
+      </div>
+    </div>
+    <div class="pay">
+      <div class="line"><div class="name"><span class="swatch" style="background:var(--pay-cash)"></span>Наличные</div><div class="pct">50%</div><div class="sum">1 206 025 ₽</div><div class="bar" style="background:var(--pay-cash); width:100%"></div></div>
+      <div class="line"><div class="name"><span class="swatch" style="background:var(--pay-card)"></span>Карта</div><div class="pct">30%</div><div class="sum">896 025 ₽</div><div class="bar" style="background:var(--pay-card); width:60%"></div></div>
+      <div class="line"><div class="name"><span class="swatch" style="background:var(--pay-bonus)"></span>Бонусы</div><div class="pct">12%</div><div class="sum">42 564 ₽</div><div class="bar" style="background:var(--pay-bonus); width:24%"></div></div>
+      <div class="line"><div class="name"><span class="swatch" style="background:var(--pay-deliv)"></span>Доставки</div><div class="pct">3%</div><div class="sum">2 564 ₽</div><div class="bar" style="background:var(--pay-deliv); width:8%"></div></div>
+      <div class="line"><div class="name"><span class="swatch" style="background:var(--pay-adv)"></span>Аванс и предоплата</div><div class="pct">1%</div><div class="sum">500 ₽</div><div class="bar" style="background:var(--pay-adv); width:4%"></div></div>
+    </div>
+  </main>
+
+  <!-- RIGHT RAIL -->
+  <div class="rail">
+    <div class="promo">
+      <span class="x">×</span>
+      <h3>Учётная система —<br>14 дней бесплатно</h3>
+      <p>Нужны только почта и пароль</p>
+    </div>
+    <div class="panel tasks">
+      <h2>Все задачи <i class="ic" data-icon="ArrowCDown"></i></h2>
+      <div class="task hot"><span class="mark"></span>На 4 ЕГАИС накладные нужно отправить ответ повторно</div>
+      <div class="task hot"><span class="mark"></span>Смс-рассылка не отправлена, недостаточно средств</div>
+      <div class="task hot"><span class="mark"></span>Акция отключена из-за удаления товара</div>
+      <div class="task"><span class="mark"></span>ЕГАИС акт нужно отправить повторно</div>
+      <div class="task"><span class="mark"></span>Оприходуйте 5 накладных</div>
+      <div class="task"><span class="mark"></span>Скачайте файл для весов</div>
+      <div class="task"><span class="mark"></span>Укажите минимальный остаток для 12 позиций</div>
+      <div class="task"><span class="mark"></span>Закажите 7 позиций, достигших минимального остатка</div>
+      <div class="task"><span class="mark"></span>1 клиент записан на сегодня</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

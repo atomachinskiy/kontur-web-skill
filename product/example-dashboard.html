@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<title>Kontur UI — пример продуктового интерфейса</title>
+<link rel="stylesheet" href="../foundation/colors.css">
+<link rel="stylesheet" href="../foundation/typography.css">
+<style>
+  *{box-sizing:border-box}
+  .ic{display:inline-flex; align-items:center; justify-content:center}
+  .ic svg{width:100%; height:100%; display:block; fill:currentColor}
+  :root{
+    /* product accents not in default k-palette (Kontur.Market brand blue) */
+    --k-blue:#1e5ac8; --k-blue-deep:#1b4c8b;
+    --pay-cash:#00a948; --pay-card:#1e5ac8; --pay-bonus:#fe4c4c; --pay-deliv:#ffbe3d; --pay-adv:#b8b8b8;
+  }
+  body{
+    margin:0; font-family:var(--k-font-family);
+    background:var(--k-color-surface-low,#f2f2f2);
+    color:var(--k-color-text-neutral-heavy,rgba(0,0,0,.88));
+    -webkit-font-smoothing:antialiased;
+  }
+  .app{display:grid; grid-template-columns:248px 1fr 372px; gap:20px; max-width:1440px; margin:0 auto; padding:20px 28px; align-items:start;}
+
+  /* sidebar */
+  .side{display:flex; flex-direction:column; gap:2px; position:sticky; top:20px;}
+  .brand{display:flex; align-items:center; gap:6px; padding:6px 12px 18px; height:34px;}
+  .brand .kontur{font-size:19px; font-weight:700; color:#222; letter-spacing:-.01em}
+  .brand .logo{height:20px; display:flex; align-items:center}
+  .brand .logo svg{height:20px; width:auto; display:block}
+  .nav a{display:flex; align-items:center; gap:12px; padding:9px 12px; border-radius:8px; text-decoration:none;
+    color:var(--k-color-text-neutral-heavy,rgba(0,0,0,.88)); font-size:15px; line-height:20px; position:relative;}
+  .nav a .ic{width:20px; height:20px; flex:0 0 20px; color:var(--k-color-text-neutral-soft,rgba(0,0,0,.56))}
+  .nav a:hover{background:rgba(0,0,0,.04)}
+  .nav a.active{background:var(--k-color-surface-base,#fff); font-weight:500; box-shadow:0 1px 2px rgba(0,0,0,.06)}
+  .nav a.active .ic{color:var(--k-color-text-neutral-heavy,rgba(0,0,0,.88))}
+  .nav .badge{margin-left:auto; background:var(--k-blue); color:#fff; font-size:12px; font-weight:500; line-height:1;
+    padding:3px 7px; border-radius:20px;}
+  .nav .dot{margin-left:auto; width:8px; height:8px; border-radius:50%; background:var(--k-blue)}
+  .nav .sep{height:1px; background:var(--k-color-line-neutral-faint,rgba(0,0,0,.08)); margin:12px 12px}
+  .user{display:flex; align-items:center; gap:10px; padding:10px 12px; margin-top:4px; font-size:15px}
+  .user .av{width:26px; height:26px; border-radius:50%; background:#3a3a3a; color:#fff; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:600}
+
+  /* main */
+  .panel{background:var(--k-color-surface-base,#fff); border-radius:16px; padding:24px 28px; box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .main-head{display:flex; align-items:baseline; justify-content:space-between; margin-bottom:22px}
+  .main-head h1{margin:0; font-size:28px; line-height:36px; font-weight:700}
+  .report-link{display:flex; align-items:center; gap:8px; color:var(--k-color-text-neutral-soft,rgba(0,0,0,.56)); font-size:15px}
+  .report-link .ic{width:18px;height:18px}
+  .metrics{display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:26px}
+  .metric{background:var(--k-color-surface-low,#f2f2f2); border-radius:12px; padding:16px 18px}
+  .metric .row{display:flex; align-items:center; gap:8px}
+  .metric .val{font-size:30px; line-height:1.1; font-weight:700; letter-spacing:-.01em}
+  .metric .delta{display:flex; align-items:center; gap:2px; font-size:14px; font-weight:500}
+  .metric .delta .ic{width:14px;height:14px}
+  .up{color:var(--k-color-text-success-heavy,#007f34)}
+  .down{color:var(--k-color-text-error-heavy,#c50220)}
+  .metric .cap{margin-top:6px; color:var(--k-color-text-neutral-soft,rgba(0,0,0,.56)); font-size:15px}
+
+  .pay{display:grid; grid-template-columns:1fr auto auto; column-gap:28px; max-width:600px}
+  .pay .line{display:contents}
+  .pay .name{display:flex; align-items:center; gap:10px; padding:8px 0 5px; font-size:15px}
+  .pay .name .swatch{width:16px; height:16px; border-radius:4px}
+  .pay .pct{color:var(--k-color-text-neutral-pale,rgba(0,0,0,.4)); font-variant-numeric:tabular-nums; align-self:center; text-align:right}
+  .pay .sum{align-self:center; text-align:right; font-variant-numeric:tabular-nums; font-size:15px}
+  .pay .bar{grid-column:1 / -1; height:3px; border-radius:2px; margin-bottom:11px}
+
+  /* right rail */
+  .rail{display:flex; flex-direction:column; gap:20px}
+  .promo{background:var(--k-blue-deep); color:#fff; border-radius:16px; padding:22px 24px; position:relative}
+  .promo h3{margin:0 0 10px; font-size:22px; line-height:28px; font-weight:700}
+  .promo p{margin:0; font-size:15px; line-height:20px; color:rgba(255,255,255,.82)}
+  .promo .x{position:absolute; top:16px; right:16px; opacity:.7; font-size:18px; line-height:1}
+  .tasks h2{margin:0 0 6px; font-size:26px; line-height:32px; font-weight:700; display:flex; align-items:center; gap:8px}
+  .tasks h2 .ic{width:20px;height:20px;color:var(--k-color-text-neutral-pale,rgba(0,0,0,.4))}
+  .task{display:flex; gap:12px; padding:13px 0; border-top:1px solid var(--k-color-line-neutral-faint,rgba(0,0,0,.08)); font-size:15px; line-height:21px; align-items:flex-start}
+  .task:first-of-type{border-top:none}
+  .task .mark{width:9px; height:9px; border-radius:50%; margin-top:6px; flex:0 0 9px; background:var(--k-color-text-neutral-pale,rgba(0,0,0,.28))}
+  .task.hot .mark{background:var(--k-color-shape-bold-brand-original,#fe4c4c)}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- SIDEBAR -->
+  <aside class="side">
+    <div class="brand"><span class="kontur">Контур</span><span class="logo"><svg viewBox="0 0 71 24" xmlns="http://www.w3.org/2000/svg" focusable="false"><path d="M10.375 11.14c-.871 2.468-1.492 4.329-1.861 5.583-.357-1.267-.99-3.128-1.901-5.584L4.415 4.942h-2.89V19h1.722v-7.01l-.02-4.256V6.308c.436 1.412 1.09 3.293 1.96 5.643L7.682 19h1.604l2.653-7.564a189.65 189.65 0 0 0 1.782-5.167c-.04 1.518-.06 3.425-.06 5.722V19h1.783V4.942h-2.891l-2.178 6.197zM26.5 12.169c0-1.083-.356-1.927-1.069-2.535-.712-.607-1.709-.91-2.99-.91-1.781 0-3.247.693-4.395 2.079l1.089.99c.541-.594 1.07-1.017 1.584-1.268a3.885 3.885 0 0 1 1.762-.396c.779 0 1.373.185 1.782.555.41.356.614.89.614 1.604v.673l-2.614.178c-1.478.08-2.574.383-3.286.91-.7.516-1.05 1.275-1.05 2.278v.099c0 .91.31 1.617.93 2.119.634.501 1.506.752 2.614.752.78 0 1.466-.139 2.06-.416.594-.29 1.069-.7 1.425-1.227V19h1.545v-6.831zm-1.623 3.128c0 .502-.132.957-.396 1.366a2.61 2.61 0 0 1-1.109.95 3.617 3.617 0 0 1-1.564.338c-.713 0-1.267-.14-1.663-.416-.383-.277-.574-.674-.574-1.188v-.1c0-.633.21-1.095.633-1.385.423-.29 1.149-.462 2.178-.515l2.495-.119v1.07zM39.416 13.911c0-1.03-.205-1.927-.614-2.692a4.495 4.495 0 0 0-1.723-1.822c-.739-.436-1.57-.654-2.495-.654-1.821 0-3.121.674-3.9 2.02V9.001H29.1v13.563h1.703v-5.01c.726 1.123 1.98 1.684 3.762 1.684.963 0 1.808-.218 2.534-.654a4.337 4.337 0 0 0 1.703-1.841c.409-.792.614-1.703.614-2.733v-.099zm-1.723.1c0 .739-.145 1.392-.436 1.96a3.33 3.33 0 0 1-1.227 1.366c-.515.317-1.102.475-1.762.475-1.07 0-1.928-.343-2.574-1.03-.647-.7-.97-1.623-.97-2.772v-.099c0-.752.151-1.412.455-1.98a3.214 3.214 0 0 1 1.267-1.287 3.646 3.646 0 0 1 1.841-.475c.647 0 1.241.159 1.782.475.515.317.911.76 1.188 1.327.29.554.436 1.201.436 1.94v.1zM50.389 19l-4.059-5.188 3.742-4.811h-1.821l-3.287 4.197H43.22V9.002H41.52V19h1.702v-4.415h1.723L48.449 19h1.94zM59.562 16.208c-.554.594-1.102 1.017-1.643 1.267-.528.251-1.136.377-1.822.377-.713 0-1.333-.152-1.861-.456-.99-.594-1.558-1.63-1.703-3.109h7.96l.04-.732c0-1.505-.41-2.686-1.229-3.544-.805-.858-1.933-1.287-3.385-1.287-1.03 0-1.927.224-2.693.673a4.723 4.723 0 0 0-1.802 1.9c-.435.806-.653 1.71-.653 2.713 0 1.056.218 1.98.653 2.772a4.582 4.582 0 0 0 1.822 1.861c.792.423 1.716.634 2.772.634.937 0 1.755-.152 2.455-.455.7-.317 1.4-.838 2.099-1.564l-1.01-1.05zm-6.97-3.168c.132-.91.495-1.63 1.09-2.158.593-.541 1.332-.812 2.217-.812.898 0 1.61.27 2.138.812.541.528.832 1.247.871 2.158h-6.316zM69.882 9H61.17v1.387h3.505V19h1.703v-8.613h3.504V9z" fill="#2291FF"></path></svg></span></div>
+    <nav class="nav">
+      <a class="active"><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M9.348 4.837a3.75 3.75 0 0 1 5.304 0l7.318 7.318a.75.75 0 1 0 1.06-1.06l-7.318-7.318a5.25 5.25 0 0 0-7.424 0L.97 11.095a.75.75 0 1 0 1.06 1.06l7.318-7.318z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M5.75 13a.75.75 0 0 0-1.5 0v5A3.75 3.75 0 0 0 8 21.75h8A3.75 3.75 0 0 0 19.75 18v-5a.75.75 0 0 0-1.5 0v5A2.25 2.25 0 0 1 16 20.25H8A2.25 2.25 0 0 1 5.75 18v-5z"/></svg></i>Главная</a>
+      <a><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M19.75 18A3.75 3.75 0 0 1 16 21.75H8A3.75 3.75 0 0 1 4.25 18V6A3.75 3.75 0 0 1 8 2.25h5.05c.729 0 1.428.29 1.944.805l3.95 3.951a2.75 2.75 0 0 1 .806 1.945V18zm-14-12A2.25 2.25 0 0 1 8 3.75h4.25V7A2.75 2.75 0 0 0 15 9.75h3.25V18A2.25 2.25 0 0 1 16 20.25H8A2.25 2.25 0 0 1 5.75 18V6zm12.285 2.25H15c-.69 0-1.25-.56-1.25-1.25V3.965c.065.044.127.095.183.151l3.95 3.95c.057.057.108.119.152.184z"/></svg></i>Документы</a>
+      <a><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.5 7a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5h-5z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M9.75 10.75a.75.75 0 0 1 .75-.75h5a.75.75 0 0 1 0 1.5h-5a.75.75 0 0 1-.75-.75z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M10.5 13a.75.75 0 0 0 0 1.5h5a.75.75 0 0 0 0-1.5h-5z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.25 6A3.75 3.75 0 0 1 7 2.25h9A3.75 3.75 0 0 1 19.75 6v12A3.75 3.75 0 0 1 16 21.75H7A3.75 3.75 0 0 1 3.25 18V6zm1.5 0c0-.98.626-1.813 1.5-2.122v16.244A2.251 2.251 0 0 1 4.75 18V6zm3-2.25v16.5H16A2.25 2.25 0 0 0 18.25 18V6A2.25 2.25 0 0 0 16 3.75H7.75z"/></svg></i>Блюда</a>
+      <a><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.71 7.43a.75.75 0 1 0-1.42.48c.667 1.98 2.517 3.42 4.71 3.42s4.043-1.44 4.71-3.42a.75.75 0 1 0-1.42-.48c-.474 1.405-1.775 2.4-3.29 2.4-1.515 0-2.816-.995-3.29-2.4z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M7.059 3a3.25 3.25 0 0 0-3.225 2.847l-1.437 11.5A3.25 3.25 0 0 0 5.622 21h12.756a3.25 3.25 0 0 0 3.225-3.653l-1.437-11.5A3.25 3.25 0 0 0 16.941 3H7.06zM5.322 6.033A1.75 1.75 0 0 1 7.06 4.5h9.882a1.75 1.75 0 0 1 1.737 1.533l1.436 11.5a1.75 1.75 0 0 1-1.736 1.967H5.622a1.75 1.75 0 0 1-1.736-1.967l1.436-11.5z"/></svg></i>Товары<span class="badge">87</span></a>
+      <a><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M1 3.25a.75.75 0 0 0 0 1.5h2.73c.548 0 1.017.395 1.11.936l1.112 6.528a4.25 4.25 0 0 0 4.19 3.536h6.875a4.25 4.25 0 0 0 4.123-3.22l1.238-4.95a1.875 1.875 0 0 0-1.819-2.33H9a.75.75 0 0 0 0 1.5h11.56c.243 0 .422.23.363.466l-1.238 4.951a2.75 2.75 0 0 1-2.668 2.083h-6.876a2.75 2.75 0 0 1-2.71-2.288L6.317 5.434A2.625 2.625 0 0 0 3.73 3.25H1z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M5.25 19.5a2.625 2.625 0 1 1 5.25 0 2.625 2.625 0 0 1-5.25 0zm2.625-1.125a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M15.25 19.5a2.625 2.625 0 1 1 5.25 0 2.625 2.625 0 0 1-5.25 0zm2.625-1.125a1.125 1.125 0 1 0 0 2.25 1.125 1.125 0 0 0 0-2.25z"/></svg></i>Услуги и товары</a>
+      <a><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.75 8.25a.75.75 0 1 0 0 1.5h5.5a.75.75 0 0 0 0-1.5h-5.5z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M5 12a.75.75 0 0 1 .75-.75h5.5a.75.75 0 0 1 0 1.5h-5.5A.75.75 0 0 1 5 12z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M5.75 14.25a.75.75 0 0 0 0 1.5h3a.75.75 0 0 0 0-1.5h-3z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.893 5.148c-1.338-1.065-2.974-1.56-4.492-1.766-1.522-.208-2.978-.135-4.01-.021C2.098 3.503 1.25 4.62 1.25 5.83v11.104c0 1.61 1.407 2.785 2.903 2.79 1.919.006 4.546.326 6.285 1.71.882.701 2.242.701 3.123 0 1.74-1.384 4.367-1.704 6.286-1.71 1.496-.005 2.903-1.18 2.903-2.79V5.83c0-1.211-.849-2.328-2.142-2.47-1.03-.114-2.487-.187-4.01.02-1.517.208-3.153.702-4.491 1.767a.182.182 0 0 1-.214 0zm-8.338-.296c.96-.106 2.284-.17 3.644.016 1.363.186 2.708.616 3.76 1.453a1.681 1.681 0 0 0 2.082 0c1.052-.837 2.397-1.267 3.76-1.453 1.36-.186 2.685-.122 3.644-.016.445.049.805.442.805.979v11.104c0 .672-.622 1.287-1.409 1.29-1.976.006-5.052.317-7.213 2.036-.335.266-.92.266-1.256 0-2.16-1.72-5.237-2.03-7.213-2.036-.787-.003-1.409-.618-1.409-1.29V5.83c0-.537.36-.93.805-.98z"/></svg></i>Журнал продаж</a>
+      <a><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M5.25 15c0 .414.336.75.75.75h12.125a.75.75 0 0 0 0-1.5H6a.75.75 0 0 0-.75.75z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M15.125 7.25c-1.036 0-1.875.84-1.875 1.875v.75c0 1.036.84 1.875 1.875 1.875h1.75c1.035 0 1.875-.84 1.875-1.875v-.75c0-1.036-.84-1.875-1.875-1.875h-1.75zm-.375 1.875c0-.207.168-.375.375-.375h1.75c.207 0 .375.168.375.375v.75a.375.375 0 0 1-.375.375h-1.75a.375.375 0 0 1-.375-.375v-.75z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M2.25 8A3.75 3.75 0 0 1 6 4.25h12A3.75 3.75 0 0 1 21.75 8v8A3.75 3.75 0 0 1 18 19.75H6A3.75 3.75 0 0 1 2.25 16V8zM6 5.75A2.25 2.25 0 0 0 3.75 8v8A2.25 2.25 0 0 0 6 18.25h12A2.25 2.25 0 0 0 20.25 16V8A2.25 2.25 0 0 0 18 5.75H6z"/></svg></i>Кассы<span class="dot"></span></a>
+      <a><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.25 14.25a.75.75 0 0 0 0 1.5h4.25a.75.75 0 0 0 0-1.5H7.25z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 12a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 6.5 12z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M18.75 17V7.95c0-.729-.29-1.428-.805-1.944l-3.951-3.95a2.75 2.75 0 0 0-1.945-.806H7A3.75 3.75 0 0 0 3.25 5v12A3.75 3.75 0 0 0 7 20.75h8A3.75 3.75 0 0 0 18.75 17zM7 2.75A2.25 2.25 0 0 0 4.75 5v12A2.25 2.25 0 0 0 7 19.25h8A2.25 2.25 0 0 0 17.25 17V8.75H14A2.75 2.75 0 0 1 11.25 6V2.75H7zm7 4.5h3.035a1.254 1.254 0 0 0-.151-.183l-3.95-3.95a1.253 1.253 0 0 0-.184-.152V6c0 .69.56 1.25 1.25 1.25z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M21.75 9a.75.75 0 0 0-1.5 0v8.5a4.75 4.75 0 0 1-4.75 4.75H9a.75.75 0 0 0 0 1.5h6.5a6.25 6.25 0 0 0 6.25-6.25V9z"/></svg></i>Отчёты</a>
+      <a><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M10.203 1.874a3.75 3.75 0 0 1 3.594 0l6.249 3.412a3.75 3.75 0 0 1 1.952 3.292v6.853a3.75 3.75 0 0 1-1.952 3.291l-6.249 3.412a3.75 3.75 0 0 1-3.594 0l-6.249-3.412a3.75 3.75 0 0 1-1.952-3.291V8.578a3.75 3.75 0 0 1 1.952-3.292l6.249-3.412zm2.875 1.317a2.25 2.25 0 0 0-2.156 0l-1.818.992 7.413 4.23 3.035-1.669a2.249 2.249 0 0 0-.225-.141L13.078 3.19zm1.898 6.07L7.558 5.028 4.673 6.603c-.078.043-.154.09-.226.141L12 10.898l2.976-1.637zM3.502 8.578c0-.205.028-.406.08-.598l7.668 4.217v8.767a2.247 2.247 0 0 1-.328-.146l-6.249-3.412a2.25 2.25 0 0 1-1.171-1.975V8.578zm9.576 12.24a2.25 2.25 0 0 1-.328.146v-8.767l7.668-4.217c.052.192.08.393.08.598v6.853c0 .823-.449 1.58-1.171 1.975l-6.249 3.412z"/></svg></i>Поставщики</a>
+      <a><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.5 4.25a4.5 4.5 0 1 0 0 9 4.5 4.5 0 0 0 0-9zm-3 4.5a3 3 0 1 1 6 0 3 3 0 0 1-6 0z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M17.875 7.25a3.25 3.25 0 1 0 0 6.5 3.25 3.25 0 0 0 0-6.5zm-1.75 3.25a1.75 1.75 0 1 1 3.5 0 1.75 1.75 0 0 1-3.5 0z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M17.5 16.75c-.278 0-.592.007-.918.034a5.088 5.088 0 0 0-.866-1.403 10.656 10.656 0 0 1 1.784-.131c.751 0 2.01.04 3.1.502.557.236 1.103.595 1.509 1.144.412.557.641 1.258.641 2.104v1a.75.75 0 0 1-1.5 0v-1c0-.563-.147-.942-.347-1.212-.205-.278-.505-.492-.888-.654-.788-.334-1.779-.384-2.515-.384z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.309 17.326c-.332.431-.559 1.019-.559 1.852V20a.75.75 0 0 1-1.5 0v-.822c0-1.13.317-2.046.868-2.765.545-.71 1.28-1.18 2.043-1.49 1.503-.614 3.258-.673 4.339-.673 1.08 0 2.836.059 4.34.673.762.31 1.497.78 2.042 1.49.551.719.868 1.635.868 2.765V20a.75.75 0 0 1-1.5 0v-.822c0-.833-.227-1.42-.559-1.852-.338-.442-.825-.772-1.419-1.015-1.21-.493-2.705-.561-3.772-.561-1.067 0-2.563.068-3.772.561-.594.243-1.08.573-1.42 1.015z"/></svg></i>Сотрудники и клиенты</a>
+      <a><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M13 14a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M10.09 8.083c0-.765.752-1.56 1.91-1.56s1.91.795 1.91 1.56c0 .377-.107.596-.243.759-.157.19-.386.345-.715.537l-.129.074c-.276.158-.635.364-.916.622-.372.343-.657.816-.657 1.472a.75.75 0 0 0 1.5 0c0-.16.048-.253.174-.369.146-.134.334-.243.62-.408l.164-.095c.336-.197.772-.464 1.113-.875.363-.437.589-.996.589-1.717 0-1.785-1.63-3.06-3.41-3.06-1.78 0-3.41 1.275-3.41 3.06a.75.75 0 1 0 1.5 0z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M3.25 5A3.75 3.75 0 0 1 7 1.25h11.5a2.25 2.25 0 0 1 2.25 2.25v13a2.25 2.25 0 0 1-2.25 2.25H6a1.25 1.25 0 1 0 0 2.5h14a.75.75 0 0 1 0 1.5H6A2.75 2.75 0 0 1 3.25 20V5zm1.5 12.55c.375-.192.8-.3 1.25-.3h12.5a.75.75 0 0 0 .75-.75v-13a.75.75 0 0 0-.75-.75H7A2.25 2.25 0 0 0 4.75 5v12.55z"/></svg></i>Справка</a>
+      <div class="sep"></div>
+      <a><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M8.71 7.43a.75.75 0 1 0-1.42.48c.667 1.98 2.517 3.42 4.71 3.42s4.043-1.44 4.71-3.42a.75.75 0 1 0-1.42-.48c-.474 1.405-1.775 2.4-3.29 2.4-1.515 0-2.816-.995-3.29-2.4z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M7.059 3a3.25 3.25 0 0 0-3.225 2.847l-1.437 11.5A3.25 3.25 0 0 0 5.622 21h12.756a3.25 3.25 0 0 0 3.225-3.653l-1.437-11.5A3.25 3.25 0 0 0 16.941 3H7.06zM5.322 6.033A1.75 1.75 0 0 1 7.06 4.5h9.882a1.75 1.75 0 0 1 1.737 1.533l1.436 11.5a1.75 1.75 0 0 1-1.736 1.967H5.622a1.75 1.75 0 0 1-1.736-1.967l1.436-11.5z"/></svg></i>Push in bar</a>
+      <a><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M12 7.623a4.377 4.377 0 1 0 0 8.754 4.377 4.377 0 0 0 0-8.754zM9.123 12a2.877 2.877 0 1 1 5.754 0 2.877 2.877 0 0 1-5.754 0z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M11.165 2a2.2 2.2 0 0 0-2.194 2.03l-.041.522c-.02.256-.199.529-.523.702-.154.082-.305.17-.452.261-.311.195-.637.213-.869.103l-.474-.227a2.2 2.2 0 0 0-2.854.886l-.835 1.446a2.2 2.2 0 0 0 .66 2.915l.434.298c.211.145.358.436.346.802a7.792 7.792 0 0 0 0 .524c.012.366-.135.657-.346.802l-.434.298a2.2 2.2 0 0 0-.66 2.915l.835 1.445a2.2 2.2 0 0 0 2.854.886l.474-.226c.232-.11.558-.092.87.102.146.092.297.18.45.261.325.174.504.447.524.702l.041.523A2.2 2.2 0 0 0 11.165 22h1.67a2.2 2.2 0 0 0 2.194-2.03l.04-.523c.02-.255.2-.528.524-.701.154-.083.305-.17.452-.262.311-.194.637-.213.869-.102l.474.226a2.2 2.2 0 0 0 2.854-.886l.835-1.445a2.2 2.2 0 0 0-.66-2.915l-.434-.298c-.211-.146-.358-.436-.346-.802a7.86 7.86 0 0 0 0-.524c-.012-.366.135-.657.346-.802l.434-.298a2.2 2.2 0 0 0 .66-2.915l-.835-1.446a2.2 2.2 0 0 0-2.854-.886l-.474.227c-.232.11-.558.092-.869-.103a7.62 7.62 0 0 0-.452-.26c-.324-.174-.503-.447-.523-.703l-.041-.523A2.201 2.201 0 0 0 12.835 2h-1.67zm-.698 2.147a.7.7 0 0 1 .698-.647h1.67a.7.7 0 0 1 .698.647l.042.523c.068.871.638 1.548 1.312 1.907.123.066.245.136.363.21.648.406 1.52.562 2.31.185l.474-.227a.7.7 0 0 1 .91.282l.834 1.446a.7.7 0 0 1-.21.928l-.434.299c-.72.494-1.022 1.325-.996 2.089a6.178 6.178 0 0 1 0 .422c-.026.764.276 1.595.996 2.09l.434.297a.7.7 0 0 1 .21.929l-.835 1.446a.7.7 0 0 1-.909.282l-.474-.227c-.79-.377-1.662-.221-2.31.184-.118.074-.24.144-.363.21-.674.36-1.244 1.036-1.313 1.908l-.04.523a.7.7 0 0 1-.7.646h-1.669a.7.7 0 0 1-.698-.646l-.042-.523c-.068-.872-.638-1.548-1.312-1.908a6.158 6.158 0 0 1-.363-.21c-.648-.405-1.52-.56-2.31-.184l-.474.227a.7.7 0 0 1-.91-.282l-.834-1.446a.7.7 0 0 1 .21-.929l.434-.298c.72-.494 1.022-1.325.996-2.089a6.268 6.268 0 0 1 0-.423c.026-.763-.276-1.594-.996-2.089l-.434-.298a.7.7 0 0 1-.21-.928l.835-1.446a.7.7 0 0 1 .909-.282l.474.227c.79.377 1.662.22 2.31-.185a6.14 6.14 0 0 1 .363-.21c.674-.359 1.244-1.036 1.312-1.907l.041-.523z"/></svg></i>Настройки и оплата<span class="dot"></span></a>
+      <a><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M13.033 1.8c-.39-.908-1.676-.908-2.066 0l-2.53 5.875-6.37.59c-.984.092-1.381 1.315-.64 1.966l4.807 4.222-1.407 6.241c-.217.963.823 1.719 1.672 1.215L12 18.643l5.5 3.266c.85.504 1.89-.252 1.673-1.215l-1.407-6.24 4.806-4.223c.742-.651.345-1.874-.638-1.965l-6.37-.591-2.53-5.876zm2.392 7.369a1.5 1.5 0 0 1-1.239-.9L12 3.191 9.814 8.268a1.5 1.5 0 0 1-1.24.9l-5.502.51 4.152 3.648a1.5 1.5 0 0 1 .473 1.457l-1.215 5.392 4.752-2.822a1.5 1.5 0 0 1 1.532 0l4.752 2.822-1.215-5.392a1.5 1.5 0 0 1 .473-1.457l4.152-3.647-5.503-.51z"/></svg></i>Оставить отзыв</a>
+    </nav>
+    <div class="user"><span class="av">ПМ</span>Пит Мондриан</div>
+  </aside>
+
+  <!-- MAIN -->
+  <main class="panel">
+    <div class="main-head">
+      <h1>Сегодня, 25 августа</h1>
+      <span class="report-link"><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.25 14.25a.75.75 0 0 0 0 1.5h4.25a.75.75 0 0 0 0-1.5H7.25z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M6.5 12a.75.75 0 0 1 .75-.75h7.5a.75.75 0 0 1 0 1.5h-7.5A.75.75 0 0 1 6.5 12z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M18.75 17V7.95c0-.729-.29-1.428-.805-1.944l-3.951-3.95a2.75 2.75 0 0 0-1.945-.806H7A3.75 3.75 0 0 0 3.25 5v12A3.75 3.75 0 0 0 7 20.75h8A3.75 3.75 0 0 0 18.75 17zM7 2.75A2.25 2.25 0 0 0 4.75 5v12A2.25 2.25 0 0 0 7 19.25h8A2.25 2.25 0 0 0 17.25 17V8.75H14A2.75 2.75 0 0 1 11.25 6V2.75H7zm7 4.5h3.035a1.254 1.254 0 0 0-.151-.183l-3.95-3.95a1.253 1.253 0 0 0-.184-.152V6c0 .69.56 1.25 1.25 1.25z"/><path fill-rule="evenodd" clip-rule="evenodd" d="M21.75 9a.75.75 0 0 0-1.5 0v8.5a4.75 4.75 0 0 1-4.75 4.75H9a.75.75 0 0 0 0 1.5h6.5a6.25 6.25 0 0 0 6.25-6.25V9z"/></svg></i>Подробный отчёт</span>
+    </div>
+    <div class="metrics">
+      <div class="metric">
+        <div class="row"><span class="val">99 651 ₽</span><span class="delta up"><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.608 7.574a.75.75 0 0 1-1.06-1.061l3.927-3.928a2.156 2.156 0 0 1 3.05 0l3.927 3.928a.75.75 0 1 1-1.06 1.06L8.75 3.933v9.353a.75.75 0 0 1-1.5 0V3.932L3.608 7.574z"/></svg></i>9%</span></div>
+        <div class="cap">Выручка</div>
+      </div>
+      <div class="metric">
+        <div class="row"><span class="val">121</span><span class="delta up"><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M3.608 7.574a.75.75 0 0 1-1.06-1.061l3.927-3.928a2.156 2.156 0 0 1 3.05 0l3.927 3.928a.75.75 0 1 1-1.06 1.06L8.75 3.933v9.353a.75.75 0 0 1-1.5 0V3.932L3.608 7.574z"/></svg></i>8%</span></div>
+        <div class="cap">Чеки</div>
+      </div>
+      <div class="metric">
+        <div class="row"><span class="val">971 ₽</span><span class="delta down"><i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M7.25 12.068V2.715a.75.75 0 1 1 1.5 0v9.353l3.642-3.642a.75.75 0 0 1 1.06 1.061l-3.927 3.928a2.156 2.156 0 0 1-3.05 0L2.548 9.487a.75.75 0 1 1 1.06-1.06l3.642 3.641z"/></svg></i>1%</span></div>
+        <div class="cap">Средний чек</div>
+      </div>
+    </div>
+    <div class="pay">
+      <div class="line"><div class="name"><span class="swatch" style="background:var(--pay-cash)"></span>Наличные</div><div class="pct">50%</div><div class="sum">1 206 025 ₽</div><div class="bar" style="background:var(--pay-cash); width:100%"></div></div>
+      <div class="line"><div class="name"><span class="swatch" style="background:var(--pay-card)"></span>Карта</div><div class="pct">30%</div><div class="sum">896 025 ₽</div><div class="bar" style="background:var(--pay-card); width:60%"></div></div>
+      <div class="line"><div class="name"><span class="swatch" style="background:var(--pay-bonus)"></span>Бонусы</div><div class="pct">12%</div><div class="sum">42 564 ₽</div><div class="bar" style="background:var(--pay-bonus); width:24%"></div></div>
+      <div class="line"><div class="name"><span class="swatch" style="background:var(--pay-deliv)"></span>Доставки</div><div class="pct">3%</div><div class="sum">2 564 ₽</div><div class="bar" style="background:var(--pay-deliv); width:8%"></div></div>
+      <div class="line"><div class="name"><span class="swatch" style="background:var(--pay-adv)"></span>Аванс и предоплата</div><div class="pct">1%</div><div class="sum">500 ₽</div><div class="bar" style="background:var(--pay-adv); width:4%"></div></div>
+    </div>
+  </main>
+
+  <!-- RIGHT RAIL -->
+  <div class="rail">
+    <div class="promo">
+      <span class="x">×</span>
+      <h3>Учётная система —<br>14 дней бесплатно</h3>
+      <p>Нужны только почта и пароль</p>
+    </div>
+    <div class="panel tasks">
+      <h2>Все задачи <i class="ic"><svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M20.617 7.881a.875.875 0 0 1 0 1.238l-6.407 6.407a3.125 3.125 0 0 1-4.42 0L3.384 9.119A.875.875 0 1 1 4.62 7.88l6.407 6.407a1.375 1.375 0 0 0 1.944 0l6.407-6.407a.875.875 0 0 1 1.238 0z"/></svg></i></h2>
+      <div class="task hot"><span class="mark"></span>На 4 ЕГАИС накладные нужно отправить ответ повторно</div>
+      <div class="task hot"><span class="mark"></span>Смс-рассылка не отправлена, недостаточно средств</div>
+      <div class="task hot"><span class="mark"></span>Акция отключена из-за удаления товара</div>
+      <div class="task"><span class="mark"></span>ЕГАИС акт нужно отправить повторно</div>
+      <div class="task"><span class="mark"></span>Оприходуйте 5 накладных</div>
+      <div class="task"><span class="mark"></span>Скачайте файл для весов</div>
+      <div class="task"><span class="mark"></span>Укажите минимальный остаток для 12 позиций</div>
+      <div class="task"><span class="mark"></span>Закажите 7 позиций, достигших минимального остатка</div>
+      <div class="task"><span class="mark"></span>1 клиент записан на сегодня</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

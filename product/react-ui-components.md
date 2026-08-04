@@ -1,0 +1,54 @@
+# @skbkontur/react-ui 6.1.3 — components (50)
+
+Install: `npm i @skbkontur/react-ui`. Wrap app in `<ThemeContext.Provider value={LIGHT_THEME}>`. Global design tokens = k-color (foundation/colors.css) + typography.
+
+- Autocomplete
+- Button
+- Calendar
+- Center
+- Checkbox
+- ComboBox
+- CurrencyInput
+- CurrencyLabel
+- DateInput
+- DatePicker
+- DateRangePicker
+- Dropdown
+- DropdownMenu
+- FileUploader
+- FxInput
+- Gapped
+- GlobalLoader
+- Group
+- Hint
+- Input
+- Kebab
+- Link
+- Loader
+- MaskedInput
+- MenuFooter
+- MenuHeader
+- MenuItem
+- MenuSeparator
+- MiniModal
+- Modal
+- Paging
+- PasswordInput
+- Radio
+- RadioGroup
+- ResponsiveLayout
+- ScrollContainer
+- Select
+- SidePage
+- SingleToast
+- Spinner
+- Sticky
+- Switcher
+- Tabs
+- Textarea
+- Toast
+- Toggle
+- Token
+- TokenInput
+- Tooltip
+- TooltipMenu
